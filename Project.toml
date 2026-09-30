@@ -1,6 +1,6 @@
 name = "SampledDomains"
 uuid = "a82262f3-35bb-4fed-9e1b-5653a3e90076"
-authors = ["Oleg Soloviev"]
+authors = ["Oleg Soloviev <oleg.soloviev@gmail.com> and contributors"]
 version = "0.1.0"
 
 [compat]

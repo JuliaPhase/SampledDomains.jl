@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+title: "SampledDomains.jl"
+message: "If you use this software, please cite it using the metadata from this file."
+type: software
+authors:
+  - family-names: "Soloviev"
+    given-names: "Oleg"
+    email: "oleg.soloviev@gmail.com"
+    orcid: "https://orcid.org/0000-0003-3761-9192"
+    affiliation: "Flexible Optical B.V. (OKO Technologies)"
+abstract: "Julia package that attaches physical coordinates to array elements, so that a[i,j] can be interpreted as f(x_i, y_j) for a function f, including dual (Fourier) domains."
+keywords:
+  - "sampled domains"
+  - "coordinates"
+  - "Fourier transform"
+  - "image processing"
+  - "Julia"
+license: MIT
+repository-code: "https://github.com/olejorik/SampledDomains.jl"
+version: "0.1.0"
