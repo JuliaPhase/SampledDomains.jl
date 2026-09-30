@@ -16,5 +16,5 @@ keywords:
   - "image processing"
   - "Julia"
 license: MIT
-repository-code: "https://github.com/olejorik/SampledDomains.jl"
+repository-code: "https://github.com/JuliaPhase/SampledDomains.jl"
 version: "0.1.0"
