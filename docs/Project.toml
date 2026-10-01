@@ -1,3 +1,6 @@
 [deps]
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
 SampledDomains = "a82262f3-35bb-4fed-9e1b-5653a3e90076"
+
+[sources]
+SampledDomains = {path = ".."}
