@@ -1,5 +1,10 @@
 """
-The goal of the module is to attach physical coordinates to array elements, so `a[i,j]` could be interpreted as ``f(x_i, y_j)`` for some function ``f``.
+The goal of the module is to attach physical coordinates to array elements, so an array entry could be interpreted as a sample of some function ``f(x, y)``.
+
+Arrays follow the Julia image convention: the **first** index runs along `y` and the **second** along `x`, i.e.
+`a[j, i]` is ``f(x_i, y_j)`` and `size(dom) == (length(yrange), length(xrange))`.
+Row 1 corresponds to `yrange[1]`. To plot such an array with Makie's `heatmap`
+(first index horizontal), transpose it: `heatmap(xrange, yrange, a')`.
 """
 module SampledDomains
 
@@ -20,6 +25,18 @@ size(dom::AbstractDomain, d) = size(dom)[d]
 ndims(dom::AbstractDomain) = length(fieldnames(typeof(dom)))
 
 # TODO rewrite as parametric type
+"""
+    CartesianDomain2D(xrange, yrange)
+
+Rectangular grid with sample coordinates `xrange` and `yrange`.
+Arrays defined on it have size `(length(yrange), length(xrange))`,
+so that `a[j, i]` is the value at `(xrange[i], yrange[j])`.
+
+```julia
+dom = CartesianDomain2D(-1:0.5:1, -1:0.5:1)
+a = [x + 2y for y in dom.yrange, x in dom.xrange]   # a[j, i] = f(x[i], y[j])
+```
+"""
 struct CartesianDomain2D <: AbstractDomain
     xrange::AbstractRange
     yrange::AbstractRange
@@ -28,14 +45,23 @@ end
 *(dom::CartesianDomain2D, s::Real) = CartesianDomain2D(dom.xrange .* s, dom.yrange .* s)
 *(s::Real, dom::CartesianDomain2D) = dom * s
 
+"""
+    dom[j, i]
+    dom[k]
+
+Coordinates of the sample with array index `(j, i)` (or linear index `k`), returned
+as `[y, x]` — the same order as when iterating over `dom`.
+"""
 function getindex(dom::CartesianDomain2D, I::Vararg{Int,2})
     return collect(x[i] for (x, i) in zip(reverse(getranges(dom)), I))
 end
 
+## Linear indexing follows Julia's column-major order for an array of size `size(dom)`,
+## i.e. it is consistent with `dom[j, i]` and with iteration over `dom`.
 function Base.getindex(dom::CartesianDomain2D, i::Int)
     1 <= i <= length(dom) || throw(BoundsError(dom, i))
-    xc, yc = divrem(i, size(dom, 2))
-    return [dom.yrange[yc], dom.xrange[xc + 1]]
+    xc, yc = divrem(i - 1, length(dom.yrange))
+    return [dom.yrange[yc + 1], dom.xrange[xc + 1]]
 end
 
 Base.IndexStyle(::Type{<:CartesianDomain2D}) = IndexCartesian()
@@ -79,14 +105,18 @@ end
     SampledDomain(vals::Array, dom::AbstractDomain)
     SampledDomain(f::Function, dom::AbstractDomain)
 
-Contains two fileds: `vals` and `dom` representing sampled values of function `f` on `dom`ain.
+Contains two fields: `vals` and `dom` representing sampled values of function `f` on `dom`ain.
+
+When constructed from a function, `f` is called with the coordinates in the order of the
+domain ranges, e.g. `f(x, y)` for a [`CartesianDomain2D`](@ref), and `vals` has the array layout
+described there: `vals[j, i] = f(x[i], y[j])`.
 """
 struct SampledDomain
     vals::Array
     dom::AbstractDomain
     function SampledDomain(vals::Array, dom::AbstractDomain)
         return if size(vals) != size(dom)
-            ErrorException("Different size of the domain and values array")
+            throw(ErrorException("Different size of the domain and values array"))
         else
             new(vals, dom)
         end
@@ -94,8 +124,10 @@ struct SampledDomain
 end
 
 function SampledDomain(f::Function, dom::AbstractDomain)
+    ## the product runs over the reversed ranges (first array index = last coordinate),
+    ## so reverse each tuple back to call `f` in the natural order (x, y)
     return SampledDomain(
-        map(x -> f(x...), Iterators.product(reverse(getranges(dom))...)), dom
+        map(t -> f(reverse(t)...), Iterators.product(reverse(getranges(dom))...)), dom
     )
 end
 
