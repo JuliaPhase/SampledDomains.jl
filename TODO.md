@@ -1,38 +1,27 @@
 # SampledDomains — TODO
 
-## AffineDomain2D — arbitrary linear coordinate transforms
+`AffineDomain2D` is implemented in 0.2.0 (on CoordinateTransformations.jl). Still open:
 
-**Motivation:** `CartesianDomain2D` stores axis-aligned `xrange`/`yrange`. When the
-physical coordinate frame is rotated or reflected relative to the array axes (e.g.
-TIFF files from a camera with a rotated sensor), there is no way to express this in
-the domain. Downstream code (Zernike basis in PhaseBases, polarization magnitudes in
-PhaseRetrieval) must work around it with ad-hoc `coordmap` arguments.
+## `dualDomain` of an affine domain
 
-**Proposed type:**
+The dual of the linear part `A` is `(A⁻¹)ᵀ`; the translation does not shift the dual grid (it
+becomes a phase factor). To be implemented when it is needed (rotated cameras in
+PhaseRetrieval), with a test against the FFT of a rotated grid.
 
-```julia
-struct AffineDomain2D{TA<:AbstractMatrix, TC}
-    origin::TC          # (x0, y0) — physical origin of array element [1,1]
-    axes::TA            # 2×2 matrix: columns are physical directions of array axes
-    size::NTuple{2,Int} # (nrows, ncols)
-end
-```
+## Makie recipe (package extension)
 
-`dom[i, j]` returns `origin + axes * [j-1, i-1]` (or similar convention), giving
-physical `(x, y)` for every array index.
+`heatmap(dom, a)` that transposes the array, puts the coordinates on the axes and labels them
+`x` and `y`, so that the order of indices of the image convention never reaches the user.
+PhasePlots `showarray(dom, a)` does this now.
 
-**Requirements:**
-- `*(scalar, dom)` — scale physical coordinates
-- `dualDomain(dom, q)` — Fourier-dual of an affine domain
-- Iteration protocol consistent with `CartesianDomain2D`
-- `make_centered_affine_domain2D(ims, rotation_angle)` constructor
+## DimensionalData extension (if wanted)
 
-**Impact if implemented:**
-- `ZernikeBW(dom::AffineDomain2D, d, order)` would pick up the rotation automatically;
-  no `coordmap` keyword needed.
-- `get_polarization_magnitudes` in PhaseRetrieval/VectorialPSF.jl would iterate over
-  physically correct `(x, y)` pairs without any changes.
-- The `coordmap` workaround in PhaseBases could be deprecated.
+Conversion of `(a, dom)` to a `DimArray` with `X` and `Y` dimensions, for plots with physical
+axes or for exchange with other software.
 
-**Current workaround:** `coordmap` keyword in `ZernikeBW` (PhaseBases), used via
-`SimParams.coordmap` in Feedback14AMI.
+## Users of the new interface
+
+- PhaseBases: `coordmap` → `AffineDomain2D` (the `CoordMap` item of its `TODO.md`).
+- PhaseRetrieval: `get_polarization_magnitudes` (VectorialPSF.jl) could iterate over the points
+  of the domain.
+- DeformableMirrors: the beam on the mirror as an `AffineDomain2D`.

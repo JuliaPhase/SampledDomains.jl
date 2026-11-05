@@ -1,13 +1,24 @@
 name = "SampledDomains"
 uuid = "a82262f3-35bb-4fed-9e1b-5653a3e90076"
 authors = ["Oleg Soloviev <oleg.soloviev@gmail.com> and contributors"]
-version = "0.1.0"
+version = "0.2.0"
+
+[deps]
+CoordinateTransformations = "150eb455-5306-5404-9cee-2592286d6298"
+StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-julia = "1"
+AbstractFFTs = "1"
+Aqua = "0.8"
+CoordinateTransformations = "0.6"
+StaticArrays = "1"
+Test = "1"
+julia = "1.10"
 
 [extras]
+AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["Test"]
+test = ["AbstractFFTs", "Aqua", "Test"]
