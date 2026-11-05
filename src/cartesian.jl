@@ -94,8 +94,11 @@ end
 """
     dualDomain(dom::CartesianDomain2D, q = (1, 1))
 
-The Fourier-dual [`CartesianDomain2D`](@ref) of `dom`, with upsampling factors `q = (qx, qy)`
-(or one integer for both), built from [`dualRange`](@ref).
+The Fourier-dual [`CartesianDomain2D`](@ref) of `dom`, built from [`dualRange`](@ref), with
+upsampling factors `q = (qx, qy)` (or one integer for both). The upsampling keeps the frequency
+step `1 / (n Δx)` and makes the range `q` times wider: it is the dual grid of an array over the
+same extent sampled `q` times finer. Zero padding, which makes the frequency step finer,
+corresponds instead to the dual of a larger domain with the same step.
 """
 function dualDomain(dom::CartesianDomain2D, q::Tuple{Int,Int}=(1, 1))
     kxrange = dualRange(dom.xrange, q[1])
