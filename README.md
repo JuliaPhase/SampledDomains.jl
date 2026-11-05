@@ -4,10 +4,10 @@ Part of the [Phase.jl](https://github.com/JuliaPhase/Phase.jl) ecosystem.
 
 <!-- DOI badge: add after first Zenodo release -->
 
-[![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://juliaphase.github.io/SampledDomains.jl/stable)
+<!-- Stable docs badge: add after the first release; until then only dev is published -->
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://juliaphase.github.io/SampledDomains.jl/dev)
 [![Build Status](https://github.com/JuliaPhase/SampledDomains.jl/workflows/CI/badge.svg)](https://github.com/JuliaPhase/SampledDomains.jl/actions)
-[![Coverage](https://codecov.io/gh/JuliaPhase/SampledDomains.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaPhase/SampledDomains.jl)
+[![Coverage](https://codecov.io/gh/JuliaPhase/SampledDomains.jl/branch/main/graph/badge.svg)](https://codecov.io/gh/JuliaPhase/SampledDomains.jl)
 
 ## Overview
 
