@@ -83,6 +83,20 @@ fig
 # at the top, so its `y` axis points down. To bring it into the frame of the middle picture,
 # flip it, `reverse(img; dims=1)`, or describe it by a domain with a descending `yrange`.
 
+# ## The array in the REPL
+#
+# The REPL is a fourth way to look at an array. On a coarse grid of 17 × 17 points with step 0.25
+# the letter is small enough to be printed:
+
+small = CartesianDomain2D(-2:0.25:2, -2:0.25:2)
+F = Int.(map(letterF, small))
+
+# The REPL prints row 1 on top, like the image viewer of the right picture above, so the
+# letter is upside down. Row 1 is `y = -2`, the lowest `y`. Flipping the rows gives the letter
+# as it was defined, with `y` up:
+
+reverse(F; dims=1)
+
 # ## Stacks of arrays
 #
 # For more than two dimensions the spatial axes come first, in the order `(y, x)`, and the
