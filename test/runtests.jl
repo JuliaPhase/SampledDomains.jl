@@ -38,3 +38,24 @@ end
     @test_throws BoundsError d[0]
     @test_throws BoundsError d[7]
 end
+
+@testset "centred domains, scaling" begin
+    d = make_centered_domain2D(4, 3, 0.5)
+    @test collect(d.xrange) == [-0.75, -0.25, 0.25, 0.75]
+    @test collect(d.yrange) == [-0.5, 0.0, 0.5]
+    @test collect(make_centered_domain2D(4, 3, 0.5, 2.0).yrange) == [-2.0, 0.0, 2.0]
+    s = d * 2
+    @test collect(s.xrange) == [-1.5, -0.5, 0.5, 1.5]
+    @test collect(s.yrange) == [-1.0, 0.0, 1.0]
+    @test (2 * d).xrange == s.xrange && (2 * d).yrange == s.yrange
+end
+
+@testset "dualRange, dualDomain" begin
+    # even and odd lengths, upsampling; the order is that of fftshift
+    @test collect(dualRange(0:0.5:1.5)) == [-1.0, -0.5, 0.0, 0.5]
+    @test collect(dualRange(0:0.5:2)) == [-0.8, -0.4, 0.0, 0.4, 0.8]
+    @test collect(dualRange(0:0.5:1.5, 2)) == [-2.0, -1.5, -1.0, -0.5, 0.0, 0.5, 1.0, 1.5]
+    dd = dualDomain(CartesianDomain2D(0:0.5:1.5, 0:0.25:0.5), (1, 2))
+    @test collect(dd.xrange) == [-1.0, -0.5, 0.0, 0.5]
+    @test collect(dd.yrange) ≈ [-4, -8 / 3, -4 / 3, 0, 4 / 3, 8 / 3]
+end
