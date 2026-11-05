@@ -64,7 +64,7 @@ function frame!(ax, ydir)
         align=(:left, :center), fontsize=20)
 end
 
-fig = Figure(; size=(1000, 330))
+fig = Figure(; size=(1300, 330))
 ax1 = array_axis(fig[1, 1], "1. Array in the REPL")
 draw_array!(ax1)
 dims!(ax1)
@@ -74,6 +74,9 @@ frame!(ax2, -1)
 ax3 = array_axis(fig[1, 3], "3. What the package does")
 draw_array!(ax3; small=true)
 frame!(ax3, 1)
+ax4 = array_axis(fig[1, 4], "4. What the package should do")
+draw_array!(ax4; small=true)
+frame!(ax4, -1)
 fig
 
 # 1. A 4 × 5 array as the REPL prints it: the row index `j` (dim 1) grows downward, the
@@ -82,8 +85,11 @@ fig
 #    decreases as `j` grows.
 # 3. An array on a domain made by [`make_centered_domain2D`](@ref) (ascending `yrange`):
 #    `x` grows with `i`, `y` grows with `j`.
+# 4. An array on a domain as it should be: the frame of an imported image, so that an image
+#    read from a file is at once the array of the values of a function on the domain
+#    (a proposal for version 0.2, not decided yet).
 #
-# Pictures 2 and 3 differ by a vertical flip.
+# Pictures 2 and 3 differ by a vertical flip; picture 4 is picture 2.
 #
 # ## A test object
 #
