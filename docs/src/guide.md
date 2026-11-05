@@ -62,7 +62,7 @@ fdom = dualDomain(pupil, 2)          # frequencies in 1/mm, upsampled twice
 fdom * (λ * f)                       # coordinates in the focal plane of a lens of focal length f
 ```
 
-The values agree with `fftshift(fftfreq(q * n, q / Δx))` of AbstractFFTs up to rounding.
+They are `fftshift(fftfreq(q * n, q / Δx))` of AbstractFFTs: every frequency is correct to one unit in the last place, and zero is exact.
 
 ## Rotated, reflected and shifted grids
 

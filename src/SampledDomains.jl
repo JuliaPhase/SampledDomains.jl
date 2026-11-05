@@ -16,6 +16,7 @@ module SampledDomains
 
 using StaticArrays: SVector, SMatrix
 using CoordinateTransformations: AffineMap, LinearMap, Translation
+using AbstractFFTs: fftfreq, fftshift
 
 export AbstractDomain, CartesianDomain2D, AffineDomain2D
 export make_centered_domain2D, dualRange, dualDomain

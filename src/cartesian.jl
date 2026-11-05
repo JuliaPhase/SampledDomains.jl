@@ -79,16 +79,16 @@ make_centered_domain2D(xlength, ylength, pixelsize) =
     dualRange(xrange::AbstractRange, q::Int = 1)
 
 Range in the Fourier-dual domain with upsampling factor `q`. If the sampling in `x` has step
-Δx, the dual range covers the interval `[-q/2Δx, q/2Δx)` with `length(xrange) * q` samples, in
-the order of `fftshift`: zero frequency at index `length ÷ 2 + 1`.
+Δx, the dual range covers the interval `[-q/2Δx, q/2Δx)` with `length(xrange) * q` samples
+and step `1 / (length(xrange) Δx)`, in the order of `fftshift`: zero frequency at index
+`length ÷ 2 + 1`.
 
-The values agree with `fftshift(fftfreq(length(xrange) * q, q / step(xrange)))` of AbstractFFTs
-up to rounding.
+It is `fftshift(fftfreq(length(xrange) * q, q / step(xrange)))` of AbstractFFTs: each
+frequency is computed as `k * (fs / n)`, correctly rounded to within one unit in the last
+place, and zero is exact.
 """
 function dualRange(xrange::AbstractRange, q::Int=1)
-    len = length(xrange) * q
-    st = step(xrange) / q
-    return UnitRange(-floor(Int, len / 2), ceil(Int, len / 2) - 1) / (st * len)
+    return fftshift(fftfreq(length(xrange) * q, q / step(xrange)))
 end
 
 """

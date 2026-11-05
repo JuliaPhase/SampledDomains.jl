@@ -4,6 +4,7 @@ authors = ["Oleg Soloviev <oleg.soloviev@gmail.com> and contributors"]
 version = "0.2.0"
 
 [deps]
+AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 CoordinateTransformations = "150eb455-5306-5404-9cee-2592286d6298"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
@@ -16,9 +17,8 @@ Test = "1"
 julia = "1.10"
 
 [extras]
-AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
 Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
 Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
 
 [targets]
-test = ["AbstractFFTs", "Aqua", "Test"]
+test = ["Aqua", "Test"]

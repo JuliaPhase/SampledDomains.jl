@@ -18,6 +18,10 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pac
 - `getranges(dom)` returns a tuple `(xrange, yrange)` instead of a vector.
 - `SampledDomain(vals, dom)` with sizes that differ throws a `DimensionMismatch` (before:
   `ErrorException`), and accepts any `AbstractArray` of values.
+- `dualRange` is `fftshift(fftfreq(n * q, q / step))` of AbstractFFTs. Each frequency is now
+  correct to one unit in the last place; before, the error was about one unit in the last place
+  of the largest frequency, i.e. up to tens of units in the last place for small frequencies.
+  Results that use the dual grid change in the last bits.
 - Requires Julia 1.10.
 
 ### Added
@@ -28,9 +32,9 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); the pac
 - `show` methods: a domain prints as its ranges, not as a matrix of points.
 - Documentation: the motivation of the convention, arrays of more than two dimensions,
   rotated grids.
-- Tests: centred domains, scaling, `dualRange` for even and odd lengths and its agreement with
-  `AbstractFFTs.fftfreq`, Aqua.jl, allocation and inference of indexing.
-- Dependencies: StaticArrays, CoordinateTransformations.
+- Tests: centred domains, scaling, `dualRange` for even and odd lengths and its accuracy
+  (one unit in the last place, exact zero), Aqua.jl, allocation and inference of indexing.
+- Dependencies: StaticArrays, CoordinateTransformations, AbstractFFTs.
 
 ## [0.1.0]
 

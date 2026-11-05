@@ -135,10 +135,16 @@ end
     @test collect(dd.yrange) ≈ [-4, -8 / 3, -4 / 3, 0, 4 / 3, 8 / 3]
 end
 
-@testset "dualRange agrees with fftfreq" begin
+@testset "dualRange: fftfreq, accurate to one ulp" begin
     for (n, s, q) in ((8, 0.1, 1), (9, 0.1, 1), (8, 0.013, 2), (7, 2.5e-3, 3), (101, 0.37, 2))
         x = range(0; step=s, length=n)
-        @test dualRange(x, q) ≈ fftshift(fftfreq(n * q, q / s)) rtol = 1e-12
+        r = dualRange(x, q)
+        @test r isa AbstractRange
+        @test r == fftshift(fftfreq(n * q, q / s))
+        ks = (-((n * q) ÷ 2)):(cld(n * q, 2) - 1)
+        exact = [BigFloat(k) / (BigFloat(s) * n) for k in ks]
+        @test all(abs(r[m] - exact[m]) <= eps(r[m]) for m in eachindex(ks) if !iszero(ks[m]))
+        @test r[(n * q) ÷ 2 + 1] === 0.0
     end
     @test dualDomain(CartesianDomain2D(0:0.5:1.5, 0:0.25:0.5), 2) ==
         dualDomain(CartesianDomain2D(0:0.5:1.5, 0:0.25:0.5), (2, 2))
