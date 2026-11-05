@@ -12,6 +12,79 @@ CairoMakie.activate!(; type="png")
 # same array in all three, so that the convention of SampledDomains can be seen rather than
 # remembered.
 #
+# ## An array and its axes
+#
+# An array has no axes of its own, only the directions of its indices. The coordinates `x`
+# and `y` are attached to these directions by a convention, and three conventions meet in
+# practice:
+
+nrows, ncols = 4, 5
+mid = Point2f(ncols / 2, nrows / 2)   # centre of the array; cell [j, i] is the unit square at (i, j)
+
+function draw_array!(ax; small=false)
+    for j in 1:nrows, i in 1:ncols
+        poly!(ax, Rect2f(i - 1, j - 1, 1, 1); color=:white, strokecolor=:gray40, strokewidth=1)
+    end
+    for j in 1:nrows, i in 1:ncols
+        if small
+            text!(ax, Point2f(i - 1 + 0.08, j - 1 + 0.08); text="[$j, $i]", align=(:left, :top),
+                fontsize=10, color=:gray55)
+        else
+            text!(ax, Point2f(i - 0.5, j - 0.5); text="[$j, $i]", align=(:center, :center),
+                fontsize=13)
+        end
+    end
+end
+
+function array_axis(pos, title)
+    ax = Axis(pos; title, aspect=DataAspect(), yreversed=true, titlesize=16,
+        limits=(-1.3, ncols + 0.3, -0.8, nrows + 0.3))
+    hidedecorations!(ax)
+    hidespines!(ax)
+    return ax
+end
+
+function dims!(ax)
+    arrows2d!(ax, [Point2f(-0.25, 0.2)], [Vec2f(0, nrows - 0.4)]; color=:black, shaftwidth=2)
+    text!(ax, -0.35, nrows / 2; text="dim 1\n(j)", align=(:right, :center), fontsize=14)
+    arrows2d!(ax, [Point2f(0.2, -0.25)], [Vec2f(ncols - 0.4, 0)]; color=:black, shaftwidth=2)
+    text!(ax, ncols / 2, -0.35; text="dim 2 (i)", align=(:center, :bottom), fontsize=14)
+end
+
+## the frame at the centre, each axis in both directions; ydir = -1: y up, +1: y down
+function frame!(ax, ydir)
+    lx, ly = 2.2, 1.7
+    arrows2d!(ax, [mid .- Point2f(lx, 0)], [Vec2f(2lx, 0)]; color=:red, shaftwidth=1.5,
+        tipwidth=10, tiplength=10)
+    arrows2d!(ax, [mid .- Point2f(0, ly * ydir)], [Vec2f(0, 2ly * ydir)]; color=:red,
+        shaftwidth=1.5, tipwidth=10, tiplength=10)
+    text!(ax, mid .+ Point2f(lx + 0.1, 0); text="x", color=:red, align=(:left, :center),
+        fontsize=20)
+    text!(ax, mid .+ Point2f(0.15, (ly + 0.05) * ydir); text="y", color=:red,
+        align=(:left, :center), fontsize=20)
+end
+
+fig = Figure(; size=(1000, 330))
+ax1 = array_axis(fig[1, 1], "1. Array in the REPL")
+draw_array!(ax1)
+dims!(ax1)
+ax2 = array_axis(fig[1, 2], "2. Array of an imported image")
+draw_array!(ax2; small=true)
+frame!(ax2, -1)
+ax3 = array_axis(fig[1, 3], "3. What the package does")
+draw_array!(ax3; small=true)
+frame!(ax3, 1)
+fig
+
+# 1. A 4 × 5 array as the REPL prints it: the row index `j` (dim 1) grows downward, the
+#    column index `i` (dim 2) to the right. An image file is shown the same way.
+# 2. An image imported from a file, in the frame of the picture: `x` grows with `i`, `y`
+#    decreases as `j` grows.
+# 3. An array on a domain made by [`make_centered_domain2D`](@ref) (ascending `yrange`):
+#    `x` grows with `i`, `y` grows with `j`.
+#
+# Pictures 2 and 3 differ by a vertical flip.
+#
 # ## A test object
 #
 # The test object is the letter F: it looks different after every flip, rotation or
