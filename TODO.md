@@ -8,11 +8,12 @@ The dual of the linear part `A` is `(A⁻¹)ᵀ`; the translation does not shift
 becomes a phase factor). To be implemented when it is needed (rotated cameras in
 PhaseRetrieval), with a test against the FFT of a rotated grid.
 
-## Makie recipe (package extension)
+## Makie: axis labels from the domain
 
-`heatmap(dom, a)` that transposes the array, puts the coordinates on the axes and labels them
-`x` and `y`, so that the order of indices of the image convention never reaches the user.
-PhasePlots `showarray(dom, a)` does this now.
+The extension draws `heatmap(dom, a)` etc. with the axes of the domain; the labels with units
+are passed by hand, `Axis(...; axislabels(dom)...)`. Setting them automatically would need a
+plot recipe that owns the axis. `AffineDomain2D` is not drawn yet (`surface` with the matrices
+of `x` and `y` could do it).
 
 ## DimensionalData extension (if wanted)
 
@@ -20,6 +21,10 @@ Conversion of `(a, dom)` to a `DimArray` with `X` and `Y` dimensions, for plots 
 axes or for exchange with other software.
 
 ## Users of the new interface
+
+After the change of orientation (0.2): check every user against results computed with `v0.1.0`
+(design: `Phase/design/SampledDomains.md` §8.1).
+
 
 - PhaseBases: `coordmap` → `AffineDomain2D` (the `CoordMap` item of its `TODO.md`).
 - PhaseRetrieval: `get_polarization_magnitudes` (VectorialPSF.jl) could iterate over the points

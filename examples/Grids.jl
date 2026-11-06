@@ -15,10 +15,12 @@ CairoMakie.activate!(; type="png")
 #
 # ## The points of a grid
 #
-# A [`CartesianDomain2D`](@ref) is built from a range in `x` and a range in `y`. It is an array
-# of points, and each point is labelled here by its index `[j, i]`:
+# A [`CartesianDomain2D`](@ref) is built from a range in `x` and a range in `y`, taken as
+# given. It is an array of points, and each point is labelled here by its index `[j, i]`. With
+# a descending `yrange` the grid is oriented as an image, row 1 at the top, as the grids made by
+# [`imagedomain`](@ref):
 
-dom = CartesianDomain2D(1:4, 1:3)
+dom = CartesianDomain2D(1:4, 3:-1:1)
 
 #-
 
@@ -33,8 +35,8 @@ end
 fig
 
 # Everything that works for arrays works for a domain: `map`, broadcasting, iteration,
-# `CartesianIndices`. Multiplying a domain by a number scales its coordinates, for example
-# from pixels to millimetres: `dom * 5.5e-3`.
+# `CartesianIndices`. Multiplying a domain by a number scales its coordinates (and drops the
+# units, see [Origins and units](OriginsAndUnits.md)).
 
 # ## Grids centred on zero
 #
@@ -87,17 +89,16 @@ step(fdom_padded.xrange), extrema(fdom_padded.xrange)
 
 #-
 
-logscale(I) = log10.(I' .+ 1e-4maximum(I))
+logscale(I) = log10.(I .+ 1e-4maximum(I))
 fig = Figure(; size=(1000, 350))
 ax1 = Axis(fig[1, 1]; title="pupil", xlabel="x", ylabel="y", aspect=DataAspect())
-heatmap!(ax1, pupil.xrange, pupil.yrange, ap'; colormap=:grays)
+heatmap!(ax1, pupil, ap; colormap=:grays)
 ax2 = Axis(fig[1, 2]; title="FFT of the pupil", xlabel="νx", ylabel="νy",
     aspect=DataAspect(), limits=(-2, 2, -2, 2))
-heatmap!(ax2, fdom.xrange, fdom.yrange, logscale(farfield); colormap=:inferno)
+heatmap!(ax2, fdom, logscale(farfield); colormap=:inferno)
 ax3 = Axis(fig[1, 3]; title="FFT of the padded pupil", xlabel="νx", ylabel="νy",
     aspect=DataAspect(), limits=(-2, 2, -2, 2))
-heatmap!(ax3, fdom_padded.xrange, fdom_padded.yrange, logscale(farfield_padded);
-    colormap=:inferno)
+heatmap!(ax3, fdom_padded, logscale(farfield_padded); colormap=:inferno)
 for ax in (ax2, ax3)
     arc!(ax, Point2f(0, 0), 1.22 / 2, 0, 2π; color=:cyan, linestyle=:dash)
 end
@@ -107,7 +108,7 @@ fig
 # The far-field intensity on a logarithmic scale. The dashed circle at `1.22 / D` falls on the
 # first dark ring in both pictures, so the coordinates given by the dual grids are right.
 # Multiplied by `λ f`, the same grid gives the coordinates in the focal plane of a lens with
-# focal length `f`: `fdom * (λ * f)`.
+# focal length `f`: `fdom * (λ * f)`; the page [PSF in wavelengths](PSF.md) does this with units.
 #
 # The second argument of `dualDomain(dom, q)` does something else than padding: it keeps the
 # step `1 / (n Δx)` and makes the range `q` times wider. This is the grid of the FFT of an array
@@ -135,8 +136,8 @@ scatter!(ax, Point2f.(vec(camera[1:5:end, 1:5:end])); color=:black, markersize=5
 fig
 
 # The camera records the values of the object at its own points. Evaluated on `camera`, the
-# letter F of the page [Arrays and pictures](ArraysAndPictures.md) appears in the stored array
-# rotated by -20°: this is the picture the camera delivers.
+# letter F appears in the stored array rotated by -20°: this is the picture the camera
+# delivers.
 
 letterF(p) =
     (-1.5 <= p.x <= -1.0 && -1.5 <= p.y <= 1.5) ||
@@ -148,10 +149,13 @@ recorded = Float64.(map(letterF, camera))
 fig = Figure(; size=(500, 330))
 ax = Axis(fig[1, 1]; title="recorded array, in pixel coordinates", xlabel="pixel x",
     ylabel="pixel y", aspect=DataAspect())
-heatmap!(ax, pixels.xrange, pixels.yrange, recorded'; colormap=:grays)
+heatmap!(ax, pixels, recorded; colormap=:grays)
 fig
 
-# The inverse map takes physical points back to the pixel frame: `inv(camera.map)`.
+# The inverse map takes physical points back to the pixel frame: `inv(camera.map)`, and
+# [`indexof`](@ref) gives the fractional pixel index of a physical point:
+
+indexof(camera, camera[10, 20])
 
 # ## Values with their domain
 #

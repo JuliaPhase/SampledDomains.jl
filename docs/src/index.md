@@ -4,60 +4,71 @@ CurrentModule = SampledDomains
 
 # SampledDomains
 
-SampledDomains attaches physical coordinates to the elements of an array: a domain says at
-which point `(x, y)` each element was sampled. The Phase.jl packages use it for pupils, bases,
-focal-plane grids and camera images.
+SampledDomains attaches physical axes to arrays of data — camera images, pupils, PSFs — so that
+it is always clear where each element lies.
 
-!!! note "Draft"
-    This documentation describes version 0.2, which is in development. In version 0.1 the
-    point of a sample was returned as `[y, x]`; see the
+- **Oriented as an image by default.** An image imported with the standard libraries
+  (`load` of FileIO) is shown with `x` to the right and `y` up, row 1 at the top. A domain made
+  by [`imagedomain`](@ref) has the same orientation, so the loaded image is at once the array
+  of the values on the domain, and the REPL prints it as the picture looks.
+- **Origin chosen by the user:** the centre of the image (geometric, or the pixel of the zero
+  frequency of an FFT) or the lower-left corner (of the image, or the centre of the corner
+  pixel).
+- **Units:** none by default (pixels). The pixel sizes Δx, Δy and their unit can be given at
+  import or later; coordinates are converted to other units and to wavelengths, `x/λ`.
+- **Physical coordinates for computations:** a function evaluated on the domain sees `x` and
+  `y` in the units of the domain (a circle of radius 50 μm on an image); fractional indices
+  are converted to points and back (distances between features, rasterisation).
+- **Display and saving keep the axes:** Makie plots with the axes of the domain; TIFF files
+  with the calibration of ImageJ (pixel size, unit, origin, direction of `y`).
+- **Custom axes:** grids rotated, mirrored or stretched with respect to the physical frame
+  ([`AffineDomain2D`](@ref)).
+
+The arrays stay plain arrays: they go into FFTs, linear algebra and solvers without wrappers,
+and the domain travels next to them.
+
+!!! note "Version 0.2"
+    Up to version 0.1, [`make_centered_domain2D`](@ref) gave `y` growing with the row number,
+    so that a function evaluated on the domain was the vertical mirror of an image from a file,
+    and the point of a sample was returned as `[y, x]`. Since 0.2, `y` points up and the point
+    is `SVector(x, y)`. See the
     [changelog](https://github.com/JuliaPhase/SampledDomains.jl/blob/main/CHANGELOG.md).
-
-## Why
-
-Julia has two conventions for two-dimensional arrays. For matrices and images the first index
-is the row, that is the vertical direction. For Makie plots the first index runs along the
-horizontal axis. Code that mixes images, FFTs and plots keeps transposing arrays, and the sign
-of a tilt or the direction of a rotation is easily lost.
-
-SampledDomains takes the convention of images and makes it explicit: a domain travels with
-the arrays and knows which index is `x` and which is `y`. The arrays stay plain arrays, so
-they go into FFTs and solvers without wrappers. The page
-[Arrays and pictures](examples/ArraysAndPictures.md) shows the difference in pictures.
 
 ## Quick start
 
-A grid with 21 samples in `x` and 11 in `y`:
+An image of 480 rows and 640 columns from a camera with pixels of 5.5 μm, the origin at the
+centre:
 
 ```@example quickstart
 using SampledDomains
-dom = CartesianDomain2D(-1:0.1:1, -0.5:0.1:0.5)
+img = rand(480, 640)          # in practice: img = load("camera.tif")
+dom = imagedomain(img; pixelsize=5.5, units=:um)
 ```
 
-The domain has the size of the arrays on it: rows are `y`, columns are `x`.
+`dom[j, i]` is the point of the pixel `img[j, i]`, with coordinates `p.x` and `p.y`. The upper
+left pixel has negative `x` and positive `y`:
 
 ```@example quickstart
-size(dom)
-```
-
-`dom[j, i]` is the point of the sample `[j, i]`, with coordinates `p.x` and `p.y`:
-
-```@example quickstart
-p = dom[1, 2]
+p = dom[1, 1]
 p.x, p.y
 ```
 
-`map` evaluates a function at every point and returns an ordinary array:
+`map` evaluates a function at every point and returns an ordinary array of the size of the
+image, here a disc of radius 50 μm:
 
 ```@example quickstart
-a = map(p -> p.x + 2p.y, dom)
-size(a)
+disc = map(p -> hypot(p.x, p.y) <= 50, dom)
+count(disc) * prod(pixelsize(dom)), π * 50^2      # its area in μm², and the exact one
 ```
 
 ## Contents
 
-- [Arrays and pictures](examples/ArraysAndPictures.md): the index order, the direction of `y`,
-  how to plot, stacks of arrays.
-- [Grids](examples/Grids.md): grids from ranges, grids centred on zero, grids of spatial
-  frequencies, rotated grids.
+- [Images and axes](examples/ImagesAndAxes.md): an image from a file, its domain, how it is
+  printed and plotted, stacks of images.
+- [Origins and units](examples/OriginsAndUnits.md): the four origins, units and their
+  conversion, a circle of 50 μm on an image, distances between features.
+- [PSF in wavelengths](examples/PSF.md): the Fourier-dual domain, the focal plane in
+  wavelengths, the direction in which a tilt moves the PSF.
+- [ImageJ](examples/ImageJ.md): TIFF files with the calibration of ImageJ and Fiji.
+- [Grids](examples/Grids.md): grids from ranges, rotated grids, values with their domain.
 - [API](api.md): all types and functions.
