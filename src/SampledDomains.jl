@@ -1,16 +1,15 @@
 """
-The goal of the module is to attach physical coordinates to array elements, so an array entry
-could be interpreted as a sample of some function ``f(x, y)``.
+SampledDomains attaches physical axes to arrays of data (camera images, pupils, PSFs), so that
+it is always clear where each element lies.
 
 A domain is a lazy array of the points of the samples: `dom[j, i]` is the point `(x, y)` of the
 sample `a[j, i]` of an array `a` on the domain, returned as an `SVector` with the properties
-`x` and `y`. Nothing is stored but the description of the grid.
+`x` and `y`. Nothing is stored but the description of the grid and the units.
 
-Arrays follow the Julia image convention: the **first** index runs along `y` and the
-**second** along `x`, i.e. `a[j, i]` is ``f(x_i, y_j)`` and
-`size(dom) == (length(yrange), length(xrange))`. Row 1 corresponds to `yrange[1]`. To plot
-such an array with Makie's `heatmap` (first index horizontal), transpose it:
-`heatmap(xrange, yrange, a')`.
+Arrays keep the index order of images, `a[j, i]` with row `j` and column `i`, and by default
+a domain is oriented as an image read from a file: `x` to the right, `y` up, row 1 at the top
+([`imagedomain`](@ref)). Then an image loaded from a file is at once the array of the values
+on the domain, and the REPL prints an array as the picture looks.
 """
 module SampledDomains
 
@@ -19,7 +18,10 @@ using CoordinateTransformations: AffineMap, LinearMap, Translation
 using AbstractFFTs: fftfreq, fftshift
 
 export AbstractDomain, CartesianDomain2D, AffineDomain2D
-export make_centered_domain2D, dualRange, dualDomain
+export imagedomain, make_centered_domain2D, dualRange, dualDomain
+export LengthUnit, wavelengthunit, units, setunits, convertunits, inwavelengths, axislabels
+export pixelsize, pointof, indexof
+export imagej_calibration, imagej_domain, save_imagej, load_imagej
 
 """
     AbstractDomain{T,N} <: AbstractArray{T,N}
@@ -29,6 +31,7 @@ on it. A subtype defines
 
 - `size(dom)`;
 - `getindex(dom, I::Vararg{Int,N})`, the point of the sample `I`, as an `SVector`;
+- `units(dom)`, the units of the coordinates;
 
 and gets iteration, `map`, broadcasting and linear indexing from the `AbstractArray`
 interface. Two-dimensional domains have points `SVector{2,T}` in the order `(x, y)`, and the
@@ -36,8 +39,10 @@ index order `(j, i)` of images: `dom[j, i]` is the point of `a[j, i]`.
 """
 abstract type AbstractDomain{T,N} <: AbstractArray{T,N} end
 
+include("units.jl")
 include("cartesian.jl")
 include("affine.jl")
 include("sampled.jl")
+include("imagej.jl")
 
 end
