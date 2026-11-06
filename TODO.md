@@ -27,8 +27,6 @@ After the change of orientation (0.2): check every user against results computed
 
 
 - PhaseBases: `coordmap` → `AffineDomain2D` (the `CoordMap` item of its `TODO.md`).
-- PhaseRetrieval: `get_polarization_magnitudes` (VectorialPSF.jl) could iterate over the points
-  of the domain.
 - DeformableMirrors: the beam on the mirror as an `AffineDomain2D`.
 
 ## Documentation
