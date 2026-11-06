@@ -151,12 +151,17 @@ function _imagej_unit(name::AbstractString, λ)
 end
 
 """
-    save_imagej(path, a::AbstractMatrix, dom::CartesianDomain2D)
+    save_imagej(path, a::AbstractMatrix, dom::CartesianDomain2D; float64 = false)
 
 Save `a` as a TIFF file with the calibration of `dom` in the format of ImageJ (pixel size, unit,
 origin, direction of `y`; see [`imagej_calibration`](@ref)), readable by ImageJ and Fiji and by
-[`load_imagej`](@ref). `Float64` values are saved as `Float32` (ImageJ reads 32-bit floats).
-Needs TiffImages: `using TiffImages`.
+[`load_imagej`](@ref). Needs TiffImages: `using TiffImages`.
+
+Real values are saved as 32-bit floats, the type ImageJ works with. With `float64 = true` they
+are saved as 64-bit floats, and [`load_imagej`](@ref) reads them back exactly; such a file is for
+Julia: ImageJ 1.54 does not open it (only through *File ▸ Import ▸ Raw*, without the
+calibration), and Fiji opens it through Bio-Formats as 32 bit, with the pixel size and unit but
+without the origin and the direction of `y`.
 """
 function save_imagej end
 

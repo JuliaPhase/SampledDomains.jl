@@ -338,6 +338,13 @@ end
         @test d2 == dom                                # the pixel size is an exact rational
         @test Float64.(img) ≈ a
         @test imagej_domain(f) == dom
+        # 64-bit floats: an exact round trip
+        b = a ./ 3
+        save_imagej(f, b, dom; float64=true)
+        img64, d64 = load_imagej(f)
+        @test Float64.(img64) == b && d64 == dom
+        save_imagej(f, b, dom)
+        @test Float64.(first(load_imagej(f))) != b                    # 32 bit by default
         # an origin on the upper edge
         q = imagedomain((6, 8); origin=(0.5, 4.5), units=:um)
         save_imagej(f, a, q)

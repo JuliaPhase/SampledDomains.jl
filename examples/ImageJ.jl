@@ -73,7 +73,11 @@ maximum(abs.(Float64.(img2) .- img))
 top = imagedomain((60, 80); pixelsize=5.5, origin=(0.5, 40.5), units=:um)
 imagej_calibration(top).yorigin
 
-# - `Float64` images are saved as 32-bit floats, which ImageJ reads. Units: nm, μm (written as
+# - Real values are saved as 32-bit floats, the type ImageJ works with. `save_imagej(file, a,
+#   dom; float64=true)` saves 64-bit floats, read back exactly by [`load_imagej`](@ref); such
+#   a file is for Julia: ImageJ 1.54 does not open it (only through *File ▸ Import ▸ Raw*, without
+#   the calibration), and Fiji opens it through Bio-Formats as 32 bit, with the pixel size and
+#   unit but without the origin and the direction of `y`. Units: nm, μm (written as
 #   `micron`), mm, cm, m; a domain in wavelengths is written with the unit `lambda` and the
 #   wavelength in metres. Different units of `x` and `y` are written as `unit` and `yunit`.
 # - The translation between a domain and the calibration of ImageJ is in one file of the

@@ -18,11 +18,12 @@ _gray(a::AbstractMatrix{<:Real}) = Gray{Float32}.(a)
 _resolution(p::Real) = rationalize(UInt32, 1 / p; tol=eps(1 / p))
 
 function SampledDomains.save_imagej(path::AbstractString, a::AbstractMatrix,
-    dom::CartesianDomain2D)
+    dom::CartesianDomain2D; float64::Bool=false)
     size(a) == size(dom) ||
         throw(DimensionMismatch("array of size $(size(a)) on a domain of size $(size(dom))"))
     cal = imagej_calibration(dom)
-    img = DenseTaggedImage(collect(_gray(a)))
+    g = float64 && eltype(a) <: Real ? Gray{Float64}.(a) : _gray(a)
+    img = DenseTaggedImage(collect(g))
     ifd = ifds(img)
     ifd[TiffImages.IMAGEDESCRIPTION] = imagej_description(cal)
     ifd[TiffImages.XRESOLUTION] = _resolution(cal.pixelwidth)
