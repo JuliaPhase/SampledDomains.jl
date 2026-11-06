@@ -35,3 +35,7 @@ After the change of orientation (0.2): check every user against results computed
 
 - PSF page: the cyan marker of the tilted PSF is hardly visible on the bright spot (Oleg,
   2026-11-06); use a contrasting marker.
+- PSF page, restructure (Oleg, 2026-11-06): instead of the aberration-free PSF, show in "The
+  pupil" at once a pupil with a small aberration (coma, by hand) on its domain; compute its PSF
+  and the shift by the tilt for it. The section "Coma, and the way back to the pupil" was a
+  misunderstanding of the request; drop or shorten it.
