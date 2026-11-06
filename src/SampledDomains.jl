@@ -36,6 +36,10 @@ on it. A subtype defines
 and gets iteration, `map`, broadcasting and linear indexing from the `AbstractArray`
 interface. Two-dimensional domains have points `SVector{2,T}` in the order `(x, y)`, and the
 index order `(j, i)` of images: `dom[j, i]` is the point of `a[j, i]`.
+
+Take the coordinates of a point by name, `p.x`, `p.y`, or `for (; x, y) in dom`, not by
+position: such code does not depend on the order of the coordinates (in version 0.1 the point
+was `[y, x]`).
 """
 abstract type AbstractDomain{T,N} <: AbstractArray{T,N} end
 
