@@ -30,3 +30,8 @@ After the change of orientation (0.2): check every user against results computed
 - PhaseRetrieval: `get_polarization_magnitudes` (VectorialPSF.jl) could iterate over the points
   of the domain.
 - DeformableMirrors: the beam on the mirror as an `AffineDomain2D`.
+
+## Documentation
+
+- PSF page: the cyan marker of the tilted PSF is hardly visible on the bright spot (Oleg,
+  2026-11-06); use a contrasting marker.
